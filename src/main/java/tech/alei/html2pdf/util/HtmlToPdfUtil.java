@@ -12,11 +12,11 @@ import org.apache.pdfbox.text.PDFTextStripper;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.util.regex.Pattern;
 
 public class HtmlToPdfUtil
 {
@@ -149,8 +149,12 @@ public class HtmlToPdfUtil
         }
     }
 
+    /** 正文关键字：含任一则视为有内容（排除仅页眉页脚的空白页）。 */
+    private static final Pattern PDF_BODY_CONTENT_MARKERS = Pattern.compile(
+            "总检报告|检查结果|项目名称|诊断结论|健康体检报告|体检报告");
+
     /**
-     * 移除 wkhtmltopdf 在文档末尾产生的无文字空白页。
+     * 移除 wkhtmltopdf 产生的空白页（含文档中间仅含页眉页脚、无正文的页）。
      */
     static void trimTrailingBlankPages(File pdfFile) throws IOException
     {
@@ -170,16 +174,26 @@ public class HtmlToPdfUtil
         }
         try (PDDocument document = PDDocument.load(pdfBytes))
         {
-            while (document.getNumberOfPages() > 1)
+            boolean removed;
+            do
             {
-                int lastIndex = document.getNumberOfPages() - 1;
-                String text = extractPageText(document, lastIndex + 1);
-                if (!isBlankPageText(text))
+                removed = false;
+                for (int i = document.getNumberOfPages() - 1; i >= 0; i--)
                 {
+                    if (document.getNumberOfPages() <= 1)
+                    {
+                        break;
+                    }
+                    String text = extractPageText(document, i + 1);
+                    if (!isBlankPageText(text))
+                    {
+                        continue;
+                    }
+                    document.removePage(i);
+                    removed = true;
                     break;
                 }
-                document.removePage(lastIndex);
-            }
+            } while (removed);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             document.save(out);
             return out.toByteArray();
@@ -200,7 +214,17 @@ public class HtmlToPdfUtil
         {
             return true;
         }
-        return text.replaceAll("\\s+", "").length() == 0;
+        String compact = text.replaceAll("\\s+", "");
+        if (compact.isEmpty())
+        {
+            return true;
+        }
+        if (PDF_BODY_CONTENT_MARKERS.matcher(compact).find())
+        {
+            return false;
+        }
+        // 仅有页眉页脚、页码等，无报告正文
+        return compact.length() < 80;
     }
 
     static void addPageNumbers(File pdfFile) throws IOException

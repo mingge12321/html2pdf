@@ -29,7 +29,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
@@ -669,22 +668,30 @@ public class Html2pdfApplicationTests {
         String safeName = String.valueOf(reportData.get("patientName")).replaceAll("[\\\\/:*?\"<>|]", "_");
         String fileName = "./build/" + admId + "-" + reportData.get("examDate") + ".pdf";
         HtmlToPdfUtil.toPdfFileWithHeaderAndFooter(html, fileName, headerHtml, footerHtml);
-        assertLastPdfPageNotBlank(fileName);
+        assertPdfHasNoBlankPages(fileName);
         System.out.println("已生成PDF: " + fileName);
     }
 
-    private static void assertLastPdfPageNotBlank(String fileName) throws IOException
+    private static void assertPdfHasNoBlankPages(String fileName) throws IOException
     {
         try (PDDocument document = PDDocument.load(new File(fileName)))
         {
             int pages = document.getNumberOfPages();
             assertTrue("PDF 至少应有一页", pages >= 1);
             PDFTextStripper stripper = new PDFTextStripper();
-            stripper.setStartPage(pages);
-            stripper.setEndPage(pages);
-            String lastPageText = stripper.getText(document);
-            assertFalse("最后一页不应为空白，当前页数=" + pages, lastPageText.replaceAll("\\s+", "").isEmpty());
-            System.out.println("PDF 页数: " + pages + "，最后一页校验通过");
+            for (int i = 1; i <= pages; i++)
+            {
+                stripper.setStartPage(i);
+                stripper.setEndPage(i);
+                String pageText = stripper.getText(document);
+                String compact = pageText.replaceAll("\\s+", "");
+                boolean hasBody = compact.contains("总检报告") || compact.contains("检查结果")
+                        || compact.contains("项目名称") || compact.contains("诊断结论")
+                        || compact.contains("健康体检报告") || compact.contains("体检报告");
+                assertTrue("第 " + i + " 页不应为空白（仅页眉页脚），总页数=" + pages,
+                        hasBody || compact.length() >= 80);
+            }
+            System.out.println("PDF 页数: " + pages + "，无空白页校验通过");
         }
     }
 

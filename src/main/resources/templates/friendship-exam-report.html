@@ -231,7 +231,7 @@
     </table>
 </div>
 
-<div class="exam-section section-break">
+<div class="exam-section" th:classappend="${summaryRows != null and !summaryRows.isEmpty()} ? '' : ' section-break'">
     <div class="page-main-title">检查结果</div>
     <div th:if="${examCategories == null or examCategories.isEmpty()}" class="empty-hint">暂无检查结果</div>
     <div class="category-block" th:each="cat, stat : ${examCategories}" th:classappend="${stat.last} ? ' category-last' : ''">
