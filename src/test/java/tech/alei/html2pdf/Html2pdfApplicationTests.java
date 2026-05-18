@@ -652,9 +652,20 @@ public class Html2pdfApplicationTests {
         String jsonData = objectMapper.writeValueAsString(reportData);
         String html = JsonToHtmlUtil.getHtml(jsonData, "friendship-exam-report");
 
+        // 生成页眉 HTML
+        String headerHtml = buildFriendshipHeaderHtml(
+                (String) reportData.get("logoBase64"),
+                (String) reportData.get("hospitalName"),
+                (String) reportData.get("patientName"),
+                (String) reportData.get("gender"),
+                (String) reportData.get("age"),
+                (String) reportData.get("examDate"),
+                (String) reportData.get("department")
+        );
+
         String safeName = String.valueOf(reportData.get("patientName")).replaceAll("[\\\\/:*?\"<>|]", "_");
         String fileName = "./build/" + admId + "-" + reportData.get("examDate") + ".pdf";
-        HtmlToPdfUtil.toPdfFile(html, fileName);
+        HtmlToPdfUtil.toPdfFileWithHeader(html, fileName, headerHtml);
         assertLastPdfPageNotBlank(fileName);
         System.out.println("已生成PDF: " + fileName);
     }
@@ -789,6 +800,63 @@ public class Html2pdfApplicationTests {
             t = t.substring(0, t.length() - 3).trim();
         }
         return t;
+    }
+
+    private static String buildFriendshipHeaderHtml(String logoBase64, String hospitalName, 
+            String patientName, String gender, String age, String examDate, String department) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<!DOCTYPE html>\n");
+        sb.append("<html>\n");
+        sb.append("<head>\n");
+        sb.append("    <meta charset=\"UTF-8\"/>\n");
+        sb.append("    <style>\n");
+        sb.append("        * { margin: 0; padding: 0; box-sizing: border-box; }\n");
+        sb.append("        body {\n");
+        sb.append("            font-family: \"SimSun\", \"宋体\", serif;\n");
+        sb.append("            font-size: 12px;\n");
+        sb.append("            color: #555;\n");
+        sb.append("            width: 100%;\n");
+        sb.append("            padding: 0;\n");
+        sb.append("        }\n");
+        sb.append("        .page-header {\n");
+        sb.append("            display: flex;\n");
+        sb.append("            justify-content: space-between;\n");
+        sb.append("            align-items: center;\n");
+        sb.append("            border-bottom: 2px solid #2d7a4f;\n");
+        sb.append("            padding: 5px 0 6px 0;\n");
+        sb.append("            margin: 0 18mm;\n");
+        sb.append("            width: calc(100% - 36mm);\n");
+        sb.append("        }\n");
+        sb.append("        .page-header-left {\n");
+        sb.append("            display: flex;\n");
+        sb.append("            align-items: center;\n");
+        sb.append("            gap: 8px;\n");
+        sb.append("            font-size: 13px;\n");
+        sb.append("        }\n");
+        sb.append("        .page-header-logo { width: 32px; height: 32px; }\n");
+        sb.append("        .page-header-right { text-align: right; font-size: 12px; color: #555; line-height: 1.5; }\n");
+        sb.append("    </style>\n");
+        sb.append("</head>\n");
+        sb.append("<body>\n");
+        sb.append("    <div class=\"page-header\">\n");
+        sb.append("        <div class=\"page-header-left\">\n");
+        sb.append("            <img class=\"page-header-logo\" src=\"data:image/png;base64,").append(logoBase64).append("\" alt=\"\"/>\n");
+        sb.append("            <strong>").append(hospitalName != null ? hospitalName : "").append("</strong>\n");
+        sb.append("        </div>\n");
+        sb.append("        <div class=\"page-header-right\">\n");
+        sb.append("            <div>姓名：").append(patientName != null ? patientName : "").append("</div>\n");
+        sb.append("            <div>性别：").append(gender != null ? gender : "").append("　年龄：").append(age != null ? age : "").append("</div>\n");
+        if (examDate != null && !examDate.isEmpty()) {
+            sb.append("            <div>体检时间：").append(examDate).append("</div>\n");
+        }
+        if (department != null && !department.isEmpty()) {
+            sb.append("            <div>体检科室：").append(department).append("</div>\n");
+        }
+        sb.append("        </div>\n");
+        sb.append("    </div>\n");
+        sb.append("</body>\n");
+        sb.append("</html>");
+        return sb.toString();
     }
 
     /**

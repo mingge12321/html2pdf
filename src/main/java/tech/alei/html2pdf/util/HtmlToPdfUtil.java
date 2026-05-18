@@ -1,6 +1,8 @@
 package tech.alei.html2pdf.util;
 
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.Pdf;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Param;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -11,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -33,6 +36,44 @@ public class HtmlToPdfUtil
         } catch (InterruptedException e)
         {
             e.printStackTrace();
+        }
+    }
+
+    public static void toPdfFileWithHeader(String html, String fileName, String headerHtml)
+    {
+        File tempHeaderFile = null;
+        try
+        {
+            // 创建临时页眉文件
+            tempHeaderFile = File.createTempFile("header-", ".html");
+            try (FileWriter writer = new FileWriter(tempHeaderFile))
+            {
+                writer.write(headerHtml);
+            }
+
+            Pdf pdf = new Pdf();
+            pdf.addPageFromString(html);
+            // 添加页眉配置
+            pdf.addParam(new Param("--header-html", tempHeaderFile.getAbsolutePath()));
+            // 设置页眉间距
+            pdf.addParam(new Param("--header-spacing", "10"));
+
+            File out = pdf.saveAs(fileName);
+            trimTrailingBlankPages(out);
+            addPageNumbers(out);
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        } catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        } finally
+        {
+            // 删除临时文件
+            if (tempHeaderFile != null && tempHeaderFile.exists())
+            {
+                tempHeaderFile.delete();
+            }
         }
     }
 
