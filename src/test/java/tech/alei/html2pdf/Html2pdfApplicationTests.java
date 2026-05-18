@@ -848,12 +848,8 @@ public class Html2pdfApplicationTests {
         sb.append("        </div>\n");
         sb.append("        <div class=\"page-header-right\">\n");
         sb.append("            <div>姓名：").append(patientName != null ? patientName : "").append("</div>\n");
-        sb.append("            <div>性别：").append(gender != null ? gender : "").append("　年龄：").append(age != null ? age : "").append("</div>\n");
         if (examDate != null && !examDate.isEmpty()) {
             sb.append("            <div>体检时间：").append(examDate).append("</div>\n");
-        }
-        if (department != null && !department.isEmpty()) {
-            sb.append("            <div>体检科室：").append(department).append("</div>\n");
         }
         sb.append("        </div>\n");
         sb.append("    </div>\n");
@@ -889,6 +885,9 @@ public class Html2pdfApplicationTests {
         sb.append("        .page-footer-left, .page-footer-right {\n");
         sb.append("            font-size: 11px;\n");
         sb.append("            color: #666;\n");
+        sb.append("        }\n");
+        sb.append("        .page-footer-right {\n");
+        sb.append("            visibility: hidden;\n");
         sb.append("        }\n");
         sb.append("    </style>\n");
         sb.append("</head>\n");
