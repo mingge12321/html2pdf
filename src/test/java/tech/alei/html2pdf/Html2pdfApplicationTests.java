@@ -557,9 +557,9 @@ public class Html2pdfApplicationTests {
     private static final String FRIENDSHIP_JDBC_USER = "ds";
     private static final String FRIENDSHIP_JDBC_PASSWORD = "Yizhixingyun!123";
 
-    /** 基本信息：Adm 表 30-40 */
+    /** 基本信息：Adm 表  50-60*/
     private static final String SQL_ADM_INFO =
-            "SELECT '北京xxx医院' AS hospital_name, a.PatSex AS gender, '50-60' AS age, "
+            "SELECT '北京xxx医院' AS hospital_name, a.PatSex AS gender, '30-40' AS age, "
                     + "a.PatName AS patient_name, DATE_ADD(a.AdmDate, INTERVAL 30 DAY) AS exam_date, a.DepDesc AS department "
                     + "FROM Adm a WHERE a.AdmId = ?";
 
@@ -579,8 +579,8 @@ public class Html2pdfApplicationTests {
      */
     @Test
     public void generateFriendshipExamPdfFromAdmMysql() throws Exception {
-//        String admId = "7afe5a0fce27ce6b261cdd7bf7118e1c76d4c0ca";
-        String admId = "1257669448f41c823a182da4b2af87192162f452";
+        String admId = "7afe5a0fce27ce6b261cdd7bf7118e1c76d4c0ca";
+//        String admId = "1257669448f41c823a182da4b2af87192162f452";
 
 
 

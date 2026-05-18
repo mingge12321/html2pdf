@@ -239,6 +239,7 @@ public class HtmlToPdfUtil
                 {
                     contentStream.beginText();
                     contentStream.setFont(PDType1Font.HELVETICA, 10);
+                    contentStream.setNonStrokingColor(102, 102, 102); // 设置为浅灰色 #666666
                     contentStream.setLeading(12f);
                     
                     String pageText = String.valueOf(pageNumber);
