@@ -77,6 +77,60 @@ public class HtmlToPdfUtil
         }
     }
 
+    public static void toPdfFileWithHeaderAndFooter(String html, String fileName, String headerHtml, String footerHtml)
+    {
+        File tempHeaderFile = null;
+        File tempFooterFile = null;
+        try
+        {
+            // 创建临时页眉文件
+            tempHeaderFile = File.createTempFile("header-", ".html");
+            try (FileWriter writer = new FileWriter(tempHeaderFile))
+            {
+                writer.write(headerHtml);
+            }
+
+            // 创建临时页脚文件
+            tempFooterFile = File.createTempFile("footer-", ".html");
+            try (FileWriter writer = new FileWriter(tempFooterFile))
+            {
+                writer.write(footerHtml);
+            }
+
+            Pdf pdf = new Pdf();
+            pdf.addPageFromString(html);
+            // 添加页眉配置
+            pdf.addParam(new Param("--header-html", tempHeaderFile.getAbsolutePath()));
+            // 设置页眉间距
+            pdf.addParam(new Param("--header-spacing", "10"));
+            // 添加页脚配置
+            pdf.addParam(new Param("--footer-html", tempFooterFile.getAbsolutePath()));
+            // 设置页脚间距
+            pdf.addParam(new Param("--footer-spacing", "10"));
+
+            File out = pdf.saveAs(fileName);
+            trimTrailingBlankPages(out);
+            addPageNumbers(out);
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        } catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        } finally
+        {
+            // 删除临时文件
+            if (tempHeaderFile != null && tempHeaderFile.exists())
+            {
+                tempHeaderFile.delete();
+            }
+            if (tempFooterFile != null && tempFooterFile.exists())
+            {
+                tempFooterFile.delete();
+            }
+        }
+    }
+
     public static void toPdfResponse(String html, HttpServletResponse response)
     {
         Pdf pdf = new Pdf();

@@ -663,9 +663,12 @@ public class Html2pdfApplicationTests {
                 (String) reportData.get("department")
         );
 
+        // 生成页脚 HTML
+        String footerHtml = buildFriendshipFooterHtml();
+
         String safeName = String.valueOf(reportData.get("patientName")).replaceAll("[\\\\/:*?\"<>|]", "_");
         String fileName = "./build/" + admId + "-" + reportData.get("examDate") + ".pdf";
-        HtmlToPdfUtil.toPdfFileWithHeader(html, fileName, headerHtml);
+        HtmlToPdfUtil.toPdfFileWithHeaderAndFooter(html, fileName, headerHtml, footerHtml);
         assertLastPdfPageNotBlank(fileName);
         System.out.println("已生成PDF: " + fileName);
     }
@@ -853,6 +856,46 @@ public class Html2pdfApplicationTests {
             sb.append("            <div>体检科室：").append(department).append("</div>\n");
         }
         sb.append("        </div>\n");
+        sb.append("    </div>\n");
+        sb.append("</body>\n");
+        sb.append("</html>");
+        return sb.toString();
+    }
+
+    private static String buildFriendshipFooterHtml() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<!DOCTYPE html>\n");
+        sb.append("<html>\n");
+        sb.append("<head>\n");
+        sb.append("    <meta charset=\"UTF-8\"/>\n");
+        sb.append("    <style>\n");
+        sb.append("        * { margin: 0; padding: 0; box-sizing: border-box; }\n");
+        sb.append("        body {\n");
+        sb.append("            font-family: \"SimSun\", \"宋体\", serif;\n");
+        sb.append("            font-size: 12px;\n");
+        sb.append("            color: #555;\n");
+        sb.append("            width: 100%;\n");
+        sb.append("            padding: 0;\n");
+        sb.append("        }\n");
+        sb.append("        .page-footer {\n");
+        sb.append("            display: flex;\n");
+        sb.append("            justify-content: space-between;\n");
+        sb.append("            align-items: center;\n");
+        sb.append("            border-top: 1px solid #ddd;\n");
+        sb.append("            padding: 5px 0 0 0;\n");
+        sb.append("            margin: 0 18mm;\n");
+        sb.append("            width: calc(100% - 36mm);\n");
+        sb.append("        }\n");
+        sb.append("        .page-footer-left, .page-footer-right {\n");
+        sb.append("            font-size: 11px;\n");
+        sb.append("            color: #666;\n");
+        sb.append("        }\n");
+        sb.append("    </style>\n");
+        sb.append("</head>\n");
+        sb.append("<body>\n");
+        sb.append("    <div class=\"page-footer\">\n");
+        sb.append("        <div class=\"page-footer-left\">北京友谊医院健康体检中心</div>\n");
+        sb.append("        <div class=\"page-footer-right\">第 <span class=\"pageNumber\"></span> 页 / 共 <span class=\"totalPages\"></span> 页</div>\n");
         sb.append("    </div>\n");
         sb.append("</body>\n");
         sb.append("</html>");
