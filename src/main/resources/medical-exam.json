@@ -1,0 +1,49 @@
+{
+    "patientName": "张三",
+    "gender": "男",
+    "age": 35,
+    "idCard": "110101199001011234",
+    "phone": "13800138000",
+    "examDate": "2024-01-15",
+    "hospital": "北京协和医院",
+    "department": "体检中心",
+    "basicInfo": {
+        "height": 175,
+        "weight": 70,
+        "bmi": 22.86,
+        "bloodPressure": "120/80",
+        "heartRate": 72
+    },
+    "bloodTest": {
+        "whiteBloodCell": "6.5×10⁹/L",
+        "redBloodCell": "4.8×10¹²/L",
+        "hemoglobin": "145g/L",
+        "platelet": "220×10⁹/L"
+    },
+    "biochemicalTest": {
+        "liverFunction": {
+            "alt": "25U/L",
+            "ast": "22U/L",
+            "bilirubin": "12μmol/L"
+        },
+        "kidneyFunction": {
+            "creatinine": "85μmol/L",
+            "urea": "5.2mmol/L",
+            "uricAcid": "380μmol/L"
+        },
+        "lipidProfile": {
+            "totalCholesterol": "4.5mmol/L",
+            "triglyceride": "1.6mmol/L",
+            "hdl": "1.2mmol/L",
+            "ldl": "2.8mmol/L"
+        }
+    },
+    "imagingReport": {
+        "chestXray": "未见明显异常",
+        "ecg": "窦性心律，正常心电图",
+        "b超": "肝、胆、胰、脾、双肾未见明显异常"
+    },
+    "doctorAdvice": "本次体检结果基本正常，建议保持健康生活方式，定期体检。",
+    "doctorName": "李四",
+    "doctorTitle": "主任医师"
+}

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <title>体检报告</title>
+    <style>
+        body { font-family: "SimHei", "Microsoft YaHei", sans-serif; font-size: 14px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { font-size: 24px; color: #333; }
+        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .info-table th, .info-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .info-table th { background-color: #f5f5f5; width: 30%; }
+        .section-title { font-size: 16px; font-weight: bold; color: #333; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 2px solid #0066cc; }
+        .sub-section { margin-left: 20px; margin-bottom: 15px; }
+        .advice { background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-top: 20px; }
+        .footer { margin-top: 30px; text-align: right; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>体检报告</h1>
+        <p>体检医院：<span th:text="${hospital}"></span></p>
+        <p>体检科室：<span th:text="${department}"></span></p>
+    </div>
+
+    <div class="section-title">一、基本信息</div>
+    <table class="info-table">
+        <tr><th>姓名</th><td th:text="${patientName}"></td></tr>
+        <tr><th>性别</th><td th:text="${gender}"></td></tr>
+        <tr><th>年龄</th><td th:text="${age}"></td></tr>
+        <tr><th>身份证号</th><td th:text="${idCard}"></td></tr>
+        <tr><th>联系电话</th><td th:text="${phone}"></td></tr>
+        <tr><th>体检日期</th><td th:text="${examDate}"></td></tr>
+    </table>
+
+    <div class="section-title">二、体格检查</div>
+    <table class="info-table">
+        <tr><th>身高</th><td th:text="${basicInfo['height']} + 'cm'"></td></tr>
+        <tr><th>体重</th><td th:text="${basicInfo['weight']} + 'kg'"></td></tr>
+        <tr><th>BMI指数</th><td th:text="${basicInfo['bmi']}"></td></tr>
+        <tr><th>血压</th><td th:text="${basicInfo['bloodPressure']}"></td></tr>
+        <tr><th>心率</th><td th:text="${basicInfo['heartRate']} + '次/分'"></td></tr>
+    </table>
+
+    <div class="section-title">三、血常规检查</div>
+    <table class="info-table">
+        <tr><th>白细胞计数</th><td th:text="${bloodTest['whiteBloodCell']}"></td></tr>
+        <tr><th>红细胞计数</th><td th:text="${bloodTest['redBloodCell']}"></td></tr>
+        <tr><th>血红蛋白</th><td th:text="${bloodTest['hemoglobin']}"></td></tr>
+        <tr><th>血小板计数</th><td th:text="${bloodTest['platelet']}"></td></tr>
+    </table>
+
+    <div class="section-title">四、生化检查</div>
+    
+    <div class="sub-section">
+        <div style="font-weight: bold; margin-bottom: 8px;">肝功能</div>
+        <table class="info-table">
+            <tr><th>谷丙转氨酶(ALT)</th><td th:text="${biochemicalTest['liverFunction']['alt']}"></td></tr>
+            <tr><th>谷草转氨酶(AST)</th><td th:text="${biochemicalTest['liverFunction']['ast']}"></td></tr>
+            <tr><th>胆红素</th><td th:text="${biochemicalTest['liverFunction']['bilirubin']}"></td></tr>
+        </table>
+    </div>
+
+    <div class="sub-section">
+        <div style="font-weight: bold; margin-bottom: 8px;">肾功能</div>
+        <table class="info-table">
+            <tr><th>肌酐</th><td th:text="${biochemicalTest['kidneyFunction']['creatinine']}"></td></tr>
+            <tr><th>尿素</th><td th:text="${biochemicalTest['kidneyFunction']['urea']}"></td></tr>
+            <tr><th>尿酸</th><td th:text="${biochemicalTest['kidneyFunction']['uricAcid']}"></td></tr>
+        </table>
+    </div>
+
+    <div class="sub-section">
+        <div style="font-weight: bold; margin-bottom: 8px;">血脂</div>
+        <table class="info-table">
+            <tr><th>总胆固醇</th><td th:text="${biochemicalTest['lipidProfile']['totalCholesterol']}"></td></tr>
+            <tr><th>甘油三酯</th><td th:text="${biochemicalTest['lipidProfile']['triglyceride']}"></td></tr>
+            <tr><th>高密度脂蛋白</th><td th:text="${biochemicalTest['lipidProfile']['hdl']}"></td></tr>
+            <tr><th>低密度脂蛋白</th><td th:text="${biochemicalTest['lipidProfile']['ldl']}"></td></tr>
+        </table>
+    </div>
+
+    <div class="section-title">五、影像学检查</div>
+    <table class="info-table">
+        <tr><th>胸部X光</th><td th:text="${imagingReport['chestXray']}"></td></tr>
+        <tr><th>心电图</th><td th:text="${imagingReport['ecg']}"></td></tr>
+        <tr><th>B超</th><td th:text="${imagingReport['b超']}"></td></tr>
+    </table>
+
+    <div class="advice">
+        <div style="font-weight: bold; margin-bottom: 8px;">医生建议</div>
+        <p th:text="${doctorAdvice}"></p>
+    </div>
+
+    <div class="footer">
+        <p>医生签名：<span th:text="${doctorName}"></span></p>
+        <p>职称：<span th:text="${doctorTitle}"></span></p>
+    </div>
+</body>
+</html>

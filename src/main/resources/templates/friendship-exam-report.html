@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>体检报告</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; }
+        body {
+            font-family: "SimSun", "宋体", serif;
+            font-size: 14px;
+            line-height: 1.7;
+            color: #333;
+        }
+        
+        @page {
+            size: A4;
+            margin: 25mm 18mm 10mm;
+            
+            @top-center {
+                content: element(header);
+            }
+        }
+        
+        @page :first {
+            margin: 15mm 18mm;
+            
+            @top-center {
+                content: "";
+            }
+        }
+        
+        .header {
+            position: running(header);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #2d7a4f;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            color: #555;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header-logo { width: 32px; height: 32px; }
+        .header-right { text-align: right; line-height: 1.5; }
+        
+        .page {
+            width: 210mm;
+            padding: 15mm 18mm;
+            margin: 0 auto;
+            background: #fff;
+            box-sizing: border-box;
+        }
+        /* 封面：高度含 padding，不超过 A4；不用 page-break-after */
+        .page.page-cover {
+            min-height: 297mm;
+            background: #fff;
+            position: relative;
+            z-index: 200;
+        }
+        .section-break {
+            page-break-before: always;
+        }
+        .exam-section {
+            width: 210mm;
+            padding: 5mm 18mm 15mm;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+        .category-block {
+            margin-bottom: 18px;
+        }
+        .category-block.category-last {
+            margin-bottom: 0;
+            page-break-after: avoid !important;
+        }
+
+        .cover { text-align: center; padding-top: 22mm; }
+        .cover-logo { width: 150px; height: 150px; margin: 0 auto 12mm; display: block; }
+        .cover-hospital {
+            font-size: 34px;
+            color: #2d7a4f;
+            letter-spacing: 10px;
+            margin-bottom: 6mm;
+            font-weight: bold;
+        }
+        .cover-subtitle {
+            font-size: 24px;
+            color: #1a6b3c;
+            letter-spacing: 8px;
+            margin-bottom: 18mm;
+        }
+        .cover-info {
+            width: 88%;
+            margin: 0 auto;
+            text-align: left;
+            background: #e8f4ec;
+            border: 1px solid #b8d4c4;
+            border-radius: 6px;
+            padding: 10mm 14mm;
+        }
+        .cover-row {
+            display: flex;
+            margin: 5mm 0;
+            font-size: 16px;
+            align-items: flex-end;
+        }
+        .cover-label {
+            width: 95px;
+            color: #2d7a4f;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .cover-value {
+            flex: 1;
+            border-bottom: 1px solid #999;
+            min-height: 22px;
+            padding: 0 4px 2px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #2d7a4f;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+        }
+        .page-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+        .page-header-logo { width: 32px; height: 32px; }
+        .page-header-right { text-align: right; font-size: 12px; color: #555; line-height: 1.5; }
+
+        .page-main-title {
+            text-align: center;
+            font-size: 22px;
+            color: #2d7a4f;
+            letter-spacing: 6px;
+            margin-bottom: 14px;
+            font-weight: bold;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+        .summary-table th {
+            border: 1px solid #ccc;
+            padding: 10px 12px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 15px;
+            color: #2d7a4f;
+            background: #fff9c4;
+        }
+        .summary-table th.col-diagnosis { width: 28%; }
+        .summary-table th.col-advice { width: 72%; }
+        .summary-table td {
+            border: 1px solid #ccc;
+            padding: 10px 12px;
+            vertical-align: top;
+            text-align: left;
+            line-height: 1.65;
+        }
+        .summary-table td.diagnosis-cell { font-weight: bold; color: #222; }
+        .summary-table td.advice-cell { color: #333; text-align: justify; }
+        .empty-hint { color: #999; font-style: italic; margin-top: 12px; }
+
+        .category-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: #fff;
+            background: #1E5EAA;
+            padding: 8px 12px;
+            margin-bottom: 0;
+        }
+        .exam-table {
+            width: 100%;
+            border-collapse: collapse;
+            -fs-table-paginate: none;
+        }
+        .exam-table thead {
+            display: table-row-group;
+        }
+        .exam-table th {
+            background: #87CEEB;
+            border: 1px solid #333;
+            padding: 8px 10px;
+            text-align: center;
+            font-weight: normal;
+            font-size: 14px;
+        }
+        .exam-table td {
+            border: 1px solid #333;
+            padding: 6px 10px;
+            vertical-align: top;
+        }
+        .exam-table td:first-child { width: 42%; }
+        .exam-table.col-3 td:first-child { width: 35%; }
+        .exam-table.col-3 td:nth-child(3) { width: 18%; text-align: center; }
+    </style>
+</head>
+<body>
+
+<!-- 运行页眉定义 -->
+<div class="header">
+    <div class="header-left">
+        <img class="header-logo" th:src="'data:image/png;base64,' + ${logoBase64}" alt=""/>
+        <strong th:text="${hospitalName}"></strong>
+    </div>
+    <div class="header-right">
+        <div th:text="'姓名：' + ${patientName}"></div>
+        <div th:text="'性别：' + ${gender} + '　年龄：' + ${age}"></div>
+        <div th:text="'体检时间：' + ${examDate}"></div>
+    </div>
+</div>
+
+<div class="page page-cover cover">
+    <img class="cover-logo" th:src="'data:image/png;base64,' + ${logoBase64}" alt="医院Logo"/>
+    <h1 class="cover-hospital" th:text="${hospitalName}">北京友谊医院</h1>
+    <h2 class="cover-subtitle">健康体检报告</h2>
+    <div class="cover-info">
+        <div class="cover-row">
+            <span class="cover-label">姓名</span>
+            <span class="cover-value" th:text="${patientName}"></span>
+        </div>
+        <div class="cover-row">
+            <span class="cover-label">性别</span>
+            <span class="cover-value" th:text="${gender}"></span>
+            <span class="cover-label" style="width:70px;margin-left:15px;">年龄</span>
+            <span class="cover-value" th:text="${age}"></span>
+        </div>
+        <div class="cover-row">
+            <span class="cover-label">体检时间</span>
+            <span class="cover-value" th:text="${examDate}"></span>
+        </div>
+        <div class="cover-row">
+            <span class="cover-label">体检科室</span>
+            <span class="cover-value" th:text="${department}"></span>
+        </div>
+    </div>
+</div>
+
+<div class="page section-break" th:if="${summaryRows != null and !summaryRows.isEmpty()}">
+    <div class="page-header">
+        <div class="page-header-left">
+            <img class="page-header-logo" th:src="'data:image/png;base64,' + ${logoBase64}" alt=""/>
+            <strong th:text="${hospitalName}"></strong>
+        </div>
+        <div class="page-header-right">
+            <div th:text="'姓名：' + ${patientName}"></div>
+            <div th:text="'性别：' + ${gender} + '　年龄：' + ${age}"></div>
+            <div th:text="'体检时间：' + ${examDate}"></div>
+        </div>
+    </div>
+    <div class="page-main-title">总检报告</div>
+    <table class="summary-table">
+        <thead>
+        <tr>
+            <th class="col-diagnosis">诊断结论</th>
+            <th class="col-advice">总检建议</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="row : ${summaryRows}">
+            <td class="diagnosis-cell" th:text="${row.diagnosis}"></td>
+            <td class="advice-cell" th:text="${row.advice}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="exam-section section-break">
+    <div class="exam-header">
+    <div class="page-header">
+        <div class="page-header-left">
+            <img class="page-header-logo" th:src="'data:image/png;base64,' + ${logoBase64}" alt=""/>
+            <strong th:text="${hospitalName}"></strong>
+        </div>
+        <div class="page-header-right">
+            <div th:text="'姓名：' + ${patientName}"></div>
+            <div th:text="'体检科室：' + ${department}"></div>
+        </div>
+    </div>
+    <div class="page-main-title">检查结果</div>
+    </div>
+    <div th:if="${examCategories == null or examCategories.isEmpty()}" class="empty-hint">暂无检查结果</div>
+    <div class="category-block" th:each="cat, stat : ${examCategories}" th:classappend="${stat.last} ? ' category-last' : ''">
+        <div class="category-title" th:text="${cat.name}"></div>
+        <table class="exam-table col-3" th:if="${cat.lab}">
+            <thead>
+            <tr><th>项目名称</th><th>检查结果</th><th>单位</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${cat.items}">
+                <td th:text="${item.name}"></td>
+                <td th:text="${item.result}"></td>
+                <td th:text="${item.unit}"></td>
+            </tr>
+            </tbody>
+        </table>
+        <table class="exam-table" th:unless="${cat.lab}">
+            <thead>
+            <tr><th>项目名称</th><th>检查结果</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${cat.items}">
+                <td th:text="${item.name}"></td>
+                <td th:text="${item.result}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

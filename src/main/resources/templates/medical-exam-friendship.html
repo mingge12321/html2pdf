@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>体检报告</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: "SimSun", "宋体", serif;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 15mm 20mm;
+            margin: 0 auto;
+            background: white;
+            position: relative;
+            page-break-after: always;
+        }
+        .page:last-child {
+            page-break-after: auto;
+        }
+        
+        /* 封面页 */
+        .cover-page {
+            text-align: center;
+            padding-top: 30mm;
+        }
+        .hospital-title {
+            font-size: 36px;
+            color: #1E5EAA;
+            letter-spacing: 12px;
+            margin-bottom: 5px;
+            font-weight: normal;
+        }
+        .center-title {
+            font-size: 32px;
+            color: #1E5EAA;
+            letter-spacing: 10px;
+            margin-bottom: 25mm;
+            font-weight: normal;
+        }
+        .logo-section {
+            margin-bottom: 20mm;
+        }
+        .logo-svg {
+            width: 180px;
+            height: 180px;
+        }
+        .hospital-name-cn {
+            font-size: 18px;
+            color: #333;
+            margin-top: 10px;
+        }
+        .hospital-name-en {
+            font-size: 12px;
+            color: #666;
+        }
+        .info-section {
+            background: #D4E4F0;
+            padding: 20mm 30mm;
+            margin-top: 15mm;
+            text-align: left;
+        }
+        .info-row {
+            display: flex;
+            margin: 8mm 0;
+            align-items: center;
+        }
+        .info-label {
+            width: 130px;
+            color: #1E5EAA;
+            font-size: 16px;
+        }
+        .info-value {
+            flex: 1;
+            background: white;
+            padding: 5px 15px;
+            border-radius: 5px;
+            min-height: 30px;
+        }
+        .footer-logo {
+            position: absolute;
+            bottom: 25mm;
+            right: 30mm;
+            text-align: center;
+        }
+        .footer-logo-img {
+            width: 70px;
+            height: 70px;
+        }
+        .footer-logo-text {
+            font-size: 10px;
+            margin-top: 5px;
+            color: #333;
+        }
+        .footer-logo-text strong {
+            font-size: 16px;
+        }
+        
+        /* 页眉 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 14px;
+        }
+        .header-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+        }
+        .header-right {
+            text-align: right;
+            font-size: 13px;
+        }
+        
+        /* 页脚 */
+        .footer {
+            position: absolute;
+            bottom: 15mm;
+            left: 20mm;
+            right: 20mm;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #333;
+        }
+        .page-number {
+            text-align: center;
+        }
+        
+        /* 页面标题 */
+        .page-title {
+            background: linear-gradient(90deg, #1E5EAA, #4A90D9);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 24px;
+            margin-bottom: 25px;
+            display: inline-block;
+        }
+        .page-title-number {
+            font-size: 28px;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        
+        /* 内容卡片 */
+        .content-card {
+            border: 1px solid #D4E4F0;
+            border-radius: 12px;
+            padding: 25px 30px;
+            background: white;
+            min-height: 200mm;
+        }
+        
+        /* 结论项 */
+        .conclusion-item {
+            margin-bottom: 20px;
+        }
+        .conclusion-title {
+            font-weight: normal;
+            color: #333;
+            margin-bottom: 3px;
+            font-size: 14px;
+        }
+        .conclusion-content {
+            color: #333;
+            text-indent: 0;
+            font-size: 14px;
+        }
+        
+        /* 表格样式 */
+        .exam-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        .exam-table th {
+            background: #87CEEB;
+            border: 1px solid #333;
+            padding: 10px;
+            text-align: center;
+            font-weight: normal;
+            font-size: 16px;
+        }
+        .exam-table td {
+            border: 1px solid #333;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+        .exam-table td:first-child {
+            width: 35%;
+        }
+        
+        /* 小结 */
+        .summary-title {
+            font-size: 16px;
+            font-weight: normal;
+            margin-bottom: 8px;
+        }
+        .summary-content {
+            white-space: pre-line;
+            margin-bottom: 20px;
+        }
+        
+        /* 医生签名 */
+        .doctors-section {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 40px;
+        }
+        .doctor-item {
+            text-align: center;
+        }
+        .doctor-label {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        .doctor-signature {
+            border: 1px solid #999;
+            width: 90px;
+            height: 45px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-style: italic;
+            color: #333;
+            margin-left: 10px;
+            font-family: "STKaiti", "楷体", serif;
+        }
+        .doctors-row {
+            display: flex;
+            justify-content: center;
+            gap: 80px;
+            margin-top: 25px;
+        }
+        
+        /* 水印背景 */
+        .watermark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            opacity: 0.08;
+            z-index: 0;
+        }
+        .watermark-svg {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- 封面页 -->
+    <div class="page cover-page">
+        <div class="watermark">
+            <svg class="watermark-svg" viewBox="0 0 200 300">
+                <path d="M100 10 L120 50 L150 50 L130 80 L140 120 L100 100 L60 120 L70 80 L50 50 L80 50 Z" fill="#1E5EAA"/>
+                <text x="100" y="180" text-anchor="middle" fill="#1E5EAA" font-size="30">⚕</text>
+            </svg>
+        </div>
+        
+        <div class="hospital-title">复旦大学附属中山医院</div>
+        <div class="center-title">健康管理中心体检报告书</div>
+        
+        <div class="logo-section">
+            <svg class="logo-svg" viewBox="0 0 200 180">
+                <ellipse cx="100" cy="90" rx="70" ry="60" fill="#1E5EAA"/>
+                <path d="M100 40 L120 60 L150 60 L130 80 L140 110 L100 90 L60 110 L70 80 L50 60 L80 60 Z" fill="white"/>
+                <text x="100" y="100" text-anchor="middle" fill="#1E5EAA" font-size="40">⚕</text>
+            </svg>
+            <div class="hospital-name-cn">复旦大学附属中山医院健康管理中心</div>
+            <div class="hospital-name-en">Health Management Center Zhongshan Hospital<br/>Fudan University</div>
+        </div>
+        
+        <div class="info-section">
+            <div class="info-row">
+                <span class="info-label">体检档案号：</span>
+                <span class="info-value" th:text="${examArchiveNo}"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">姓名：</span>
+                <span class="info-value" th:text="${patientName}"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">性别：</span>
+                <span class="info-value" th:text="${gender}"></span>
+                <span class="info-label" style="margin-left: 40px;">年龄：</span>
+                <span class="info-value" th:text="${age}"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">体检日期：</span>
+                <span class="info-value" th:text="${examDate}"></span>
+            </div>
+        </div>
+        
+        <div class="footer-logo">
+            <svg class="footer-logo-img" viewBox="0 0 100 100">
+                <defs>
+                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#4A90D9;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#1E5EAA;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <path d="M50 10 L80 30 L80 70 L50 90 L20 70 L20 30 Z" fill="url(#grad1)" stroke="#1E5EAA" stroke-width="2"/>
+                <path d="M50 25 L65 38 L65 62 L50 75 L35 62 L35 38 Z" fill="white"/>
+                <text x="50" y="58" text-anchor="middle" fill="#1E5EAA" font-size="20">⚕</text>
+                <text x="50" y="88" text-anchor="middle" fill="#1E5EAA" font-size="6">1937</text>
+            </svg>
+            <div class="footer-logo-text">
+                复旦大学附属<br/>
+                <strong>中山医院</strong><br/>
+                <span style="font-size: 8px;">ZHONGSHAN HOSPITAL</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 第2页：主检结论及建议 -->
+    <div class="page">
+        <div class="watermark">
+            <svg class="watermark-svg" viewBox="0 0 200 300">
+                <text x="100" y="150" text-anchor="middle" fill="#1E5EAA" font-size="80" transform="rotate(-30 100 150)">⚕</text>
+            </svg>
+        </div>
+        
+        <div class="header">
+            <div class="header-left">
+                <span>
+                    <svg class="header-icon" viewBox="0 0 24 24"><text y="20" font-size="20">📋</text></svg>
+                    姓名：<span th:text="${patientName}"></span>
+                </span>
+                <span>
+                    <svg class="header-icon" viewBox="0 0 24 24"><text y="20" font-size="20">⚧</text></svg>
+                    性别：<span th:text="${gender}"></span>
+                </span>
+                <span>
+                    <svg class="header-icon" viewBox="0 0 24 24"><text y="20" font-size="20">💓</text></svg>
+                    年龄：<span th:text="${age}"></span>
+                </span>
+                <span>
+                    <svg class="header-icon" viewBox="0 0 24 24"><text y="20" font-size="20">📞</text></svg>
+                    <span th:text="${phone}"></span>
+                </span>
+            </div>
+            <div class="header-right">
+                <div>体检机构：复旦大学附属中山医院健康管理中心</div>
+                <div>体检地点：上海市松江区龙泉山南路137弄</div>
+            </div>
+        </div>
+        
+        <div class="page-title">
+            <span class="page-title-number">02</span>
+            主检结论及建议
+        </div>
+        
+        <div class="content-card">
+            <div th:each="conclusion : ${mainConclusions}">
+                <div class="conclusion-item">
+                    <div class="conclusion-title" th:text="${conclusion.title}"></div>
+                    <div class="conclusion-content" th:text="${conclusion.content}"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div></div>
+            <div class="page-number">
+                2 / <span th:text="${totalPages}"></span>
+            </div>
+            <div>
+                体检编号：<span th:text="${examNo}"></span><br/>
+                体检日期：<span th:text="${examDate}"></span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 第4页：其他检查 -->
+    <div class="page">
+        <div class="watermark">
+            <svg class="watermark-svg" viewBox="0 0 200 300">
+                <text x="100" y="150" text-anchor="middle" fill="#1E5EAA" font-size="80" transform="rotate(-30 100 150)">⚕</text>
+            </svg>
+        </div>
+        
+        <div class="header">
+            <div class="header-left">
+                <span>
+                    <svg class="header-icon" viewBox="0 0 24 24"><text y="20" font-size="20">📋</text></svg>
+                    姓名：<span th:text="${patientName}"></span>
+                </span>
+                <span>
+                    <svg class="header-icon" viewBox="0 0 24 24"><text y="20" font-size="20">⚧</text></svg>
+                    性别：<span th:text="${gender}"></span>
+                </span>
+                <span>
+                    <svg class="header-icon" viewBox="0 0 24 24"><text y="20" font-size="20">💓</text></svg>
+                    年龄：<span th:text="${age}"></span>
+                </span>
+                <span>
+                    <svg class="header-icon" viewBox="0 0 24 24"><text y="20" font-size="20">📞</text></svg>
+                    <span th:text="${phone}"></span>
+                </span>
+            </div>
+            <div class="header-right">
+                <div>体检机构：复旦大学附属中山医院健康管理中心</div>
+                <div>体检地点：上海市松江区龙泉山南路137弄</div>
+            </div>
+        </div>
+        
+        <div class="content-card">
+            <div th:each="finding : ${otherFindings}">
+                <div class="conclusion-item">
+                    <div class="conclusion-title" th:text="${finding.title}"></div>
+                    <div class="conclusion-content" th:text="${finding.content}"></div>
+                </div>
+            </div>
+            
+            <div class="doctors-section">
+                <div class="doctor-item">
+                    <div class="doctor-label">总检医生：<span th:text="${chiefDoctor}"></span></div>
+                </div>
+                <div class="doctor-item">
+                    <span class="doctor-signature" th:text="${chiefDoctorSignature}">张丽杨</span>
+                </div>
+                <div class="doctor-item">
+                    <div class="doctor-label">总审医生：<span th:text="${chiefReviewer}"></span></div>
+                </div>
+                <div class="doctor-item">
+                    <span class="doctor-signature" th:text="${chiefReviewerSignature}">周敬</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div></div>
+            <div class="page-number">
+                4 / <span th:text="${totalPages}"></span>
+            </div>
+            <div>
+                体检编号：<span th:text="${examNo}"></span><br/>
+                体检日期：<span th:text="${examDate}"></span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 第11页：一般检查 -->
+    <div class="page">
+        <div class="watermark">
+            <svg class="watermark-svg" viewBox="0 0 200 300">
+                <text x="100" y="150" text-anchor="middle" fill="#1E5EAA" font-size="80" transform="rotate(-30 100 150)">⚕</text>
+            </svg>
+        </div>
+        
+        <div class="header">
+            <div class="header-left">
+                <span>
+                    <svg class="header-icon" viewBox="0 0 24 24"><text y="20" font-size="20">📋</text></svg>
+                    姓名：<span th:text="${patientName}"></span>
+                </span>
+                <span>
+                    <svg class="header-icon" viewBox="0 0 24 24"><text y="20" font-size="20">⚧</text></svg>
+                    性别：<span th:text="${gender}"></span>
+                </span>
+                <span>
+                    <svg class="header-icon" viewBox="0 0 24 24"><text y="20" font-size="20">💓</text></svg>
+                    年龄：<span th:text="${age}"></span>
+                </span>
+                <span>
+                    <svg class="header-icon" viewBox="0 0 24 24"><text y="20" font-size="20">📞</text></svg>
+                    <span th:text="${phone}"></span>
+                </span>
+            </div>
+            <div class="header-right">
+                <div>体检机构：复旦大学附属中山医院健康管理中心</div>
+                <div>体检地点：上海市松江区龙泉山南路137弄</div>
+            </div>
+        </div>
+        
+        <div class="page-title">
+            <span class="page-title-number">05</span>
+            健康体检信息汇总
+        </div>
+        
+        <div class="content-card" style="min-height: 180mm;">
+            <table class="exam-table">
+                <thead>
+                    <tr>
+                        <th colspan="2">一般检查（日间）</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>收缩压(第一次)</td>
+                        <td th:text="${systolicPressure1}"></td>
+                    </tr>
+                    <tr>
+                        <td>舒张压(第一次)</td>
+                        <td th:text="${diastolicPressure1}"></td>
+                    </tr>
+                    <tr>
+                        <td>血压结论(第一次)</td>
+                        <td th:text="${bpConclusion1}"></td>
+                    </tr>
+                    <tr>
+                        <td>收缩压(第二次)</td>
+                        <td th:text="${systolicPressure2}"></td>
+                    </tr>
+                    <tr>
+                        <td>舒张压(第二次)</td>
+                        <td th:text="${diastolicPressure2}"></td>
+                    </tr>
+                    <tr>
+                        <td>血压结论(第二次)</td>
+                        <td th:text="${bpConclusion2}"></td>
+                    </tr>
+                    <tr>
+                        <td>腰围</td>
+                        <td th:text="${waistCircumference}"></td>
+                    </tr>
+                    <tr>
+                        <td>臀围</td>
+                        <td th:text="${hipCircumference}"></td>
+                    </tr>
+                    <tr>
+                        <td>腰臀比</td>
+                        <td th:text="${waistHipRatio}"></td>
+                    </tr>
+                    <tr>
+                        <td>身高</td>
+                        <td th:text="${height}"></td>
+                    </tr>
+                    <tr>
+                        <td>体重</td>
+                        <td th:text="${weight}"></td>
+                    </tr>
+                    <tr>
+                        <td>体重指数</td>
+                        <td th:text="${bmi}"></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="summary-title">小结：</div>
+            <div class="summary-content" th:text="${generalExamSummary}"></div>
+            
+            <div class="doctors-row">
+                <div>报告医师：<span th:text="${generalExamDoctor}"></span></div>
+                <div>审核医师：<span th:text="${generalExamReviewer}"></span></div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div></div>
+            <div class="page-number">
+                11 / <span th:text="${totalPages}"></span>
+            </div>
+            <div>
+                体检编号：<span th:text="${examNo}"></span><br/>
+                体检日期：<span th:text="${examDate}"></span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 第12页：内科、外科 -->
+    <div class="page">
+        <div class="watermark">
+            <svg class="watermark-svg" viewBox="0 0 200 300">
+                <text x="100" y="150" text-anchor="middle" fill="#1E5EAA" font-size="80" transform="rotate(-30 100 150)">⚕</text>
+            </svg>
+        </div>
+        
+        <div class="header">
+            <div class="header-left">
+                <span>
+                    <svg class="header-icon" viewBox="0 0 24 24"><text y="20" font-size="20">📋</text></svg>
+                    姓名：<span th:text="${patientName}"></span>
+                </span>
+                <span>
+                    <svg class="header-icon" viewBox="0 0 24 24"><text y="20" font-size="20">⚧</text></svg>
+                    性别：<span th:text="${gender}"></span>
+                </span>
+                <span>
+                    <svg class="header-icon" viewBox="0 0 24 24"><text y="20" font-size="20">💓</text></svg>
+                    年龄：<span th:text="${age}"></span>
+                </span>
+                <span>
+                    <svg class="header-icon" viewBox="0 0 24 24"><text y="20" font-size="20">📞</text></svg>
+                    <span th:text="${phone}"></span>
+                </span>
+            </div>
+            <div class="header-right">
+                <div>体检机构：复旦大学附属中山医院健康管理中心</div>
+                <div>体检地点：上海市松江区龙泉山南路137弄</div>
+            </div>
+        </div>
+        
+        <div class="content-card" style="padding: 20px 25px; min-height: 210mm;">
+            <table class="exam-table">
+                <thead>
+                    <tr>
+                        <th colspan="2">内科</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>心律</td>
+                        <td th:text="${heartRhythm}"></td>
+                    </tr>
+                    <tr>
+                        <td>心率（次/分钟）</td>
+                        <td th:text="${heartRate}"></td>
+                    </tr>
+                    <tr>
+                        <td>心音</td>
+                        <td th:text="${heartSound}"></td>
+                    </tr>
+                    <tr>
+                        <td>杂音</td>
+                        <td th:text="${heartMurmur}"></td>
+                    </tr>
+                    <tr>
+                        <td>肺部听诊</td>
+                        <td th:text="${lungAuscultation}"></td>
+                    </tr>
+                    <tr>
+                        <td>腹部触诊</td>
+                        <td th:text="${abdomenPalpation}"></td>
+                    </tr>
+                    <tr>
+                        <td>肝脏</td>
+                        <td th:text="${liver}"></td>
+                    </tr>
+                    <tr>
+                        <td>胆囊</td>
+                        <td th:text="${gallbladder}"></td>
+                    </tr>
+                    <tr>
+                        <td>脾脏</td>
+                        <td th:text="${spleen}"></td>
+                    </tr>
+                    <tr>
+                        <td>肾脏</td>
+                        <td th:text="${kidney}"></td>
+                    </tr>
+                    <tr>
+                        <td>内科既往史</td>
+                        <td th:text="${internalMedicineHistory}"></td>
+                    </tr>
+                    <tr>
+                        <td>个人史</td>
+                        <td th:text="${personalHistory}"></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="summary-title">小结：</div>
+            <div class="summary-content" th:text="${internalMedicineSummary}"></div>
+            
+            <div class="doctors-row">
+                <div>报告医师：<span th:text="${internalMedicineDoctor}"></span></div>
+                <div>审核医师：<span th:text="${internalMedicineReviewer}"></span></div>
+                <span class="doctor-signature" th:text="${internalMedicineReviewerSignature}">张丽杨</span>
+            </div>
+            
+            <table class="exam-table" style="margin-top: 25px;">
+                <thead>
+                    <tr>
+                        <th colspan="2">外科</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>甲状腺</td>
+                        <td th:text="${thyroid}"></td>
+                    </tr>
+                    <tr>
+                        <td>淋巴结</td>
+                        <td th:text="${lymphNode}"></td>
+                    </tr>
+                    <tr>
+                        <td>脊柱四肢关节</td>
+                        <td th:text="${spineJoints}"></td>
+                    </tr>
+                    <tr>
+                        <td>外科其他</td>
+                        <td th:text="${surgeryOther}"></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="summary-title">小结：</div>
+            <div class="summary-content" th:text="${surgerySummary}"></div>
+            
+            <div class="doctors-row">
+                <div>报告医师：<span th:text="${surgeryDoctor}"></span></div>
+                <div>审核医师：<span th:text="${surgeryReviewer}"></span></div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div></div>
+            <div class="page-number">
+                12 / <span th:text="${totalPages}"></span>
+            </div>
+            <div>
+                体检编号：<span th:text="${examNo}"></span><br/>
+                体检日期：<span th:text="${examDate}"></span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
