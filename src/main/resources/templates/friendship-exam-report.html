@@ -15,39 +15,14 @@
         
         @page {
             size: A4;
-            margin: 25mm 18mm 10mm;
-            
-            @top-center {
-                content: element(header);
-            }
+            margin: 15mm 18mm 10mm;
         }
         
         @page :first {
             margin: 15mm 18mm;
-            
-            @top-center {
-                content: "";
-            }
         }
         
-        .header {
-            position: running(header);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #2d7a4f;
-            padding-bottom: 6px;
-            margin-bottom: 12px;
-            font-size: 12px;
-            color: #555;
-        }
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .header-logo { width: 32px; height: 32px; }
-        .header-right { text-align: right; line-height: 1.5; }
+
         
         .page {
             width: 210mm;
@@ -212,19 +187,6 @@
 </head>
 <body>
 
-<!-- 运行页眉定义 -->
-<div class="header">
-    <div class="header-left">
-        <img class="header-logo" th:src="'data:image/png;base64,' + ${logoBase64}" alt=""/>
-        <strong th:text="${hospitalName}"></strong>
-    </div>
-    <div class="header-right">
-        <div th:text="'姓名：' + ${patientName}"></div>
-        <div th:text="'性别：' + ${gender} + '　年龄：' + ${age}"></div>
-        <div th:text="'体检时间：' + ${examDate}"></div>
-    </div>
-</div>
-
 <div class="page page-cover cover">
     <img class="cover-logo" th:src="'data:image/png;base64,' + ${logoBase64}" alt="医院Logo"/>
     <h1 class="cover-hospital" th:text="${hospitalName}">北京友谊医院</h1>
@@ -281,7 +243,6 @@
 </div>
 
 <div class="exam-section section-break">
-    <div class="exam-header">
     <div class="page-header">
         <div class="page-header-left">
             <img class="page-header-logo" th:src="'data:image/png;base64,' + ${logoBase64}" alt=""/>
@@ -293,7 +254,6 @@
         </div>
     </div>
     <div class="page-main-title">检查结果</div>
-    </div>
     <div th:if="${examCategories == null or examCategories.isEmpty()}" class="empty-hint">暂无检查结果</div>
     <div class="category-block" th:each="cat, stat : ${examCategories}" th:classappend="${stat.last} ? ' category-last' : ''">
         <div class="category-title" th:text="${cat.name}"></div>

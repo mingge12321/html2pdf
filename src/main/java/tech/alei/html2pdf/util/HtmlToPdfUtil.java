@@ -110,14 +110,11 @@ public class HtmlToPdfUtil
 
     static void addPageNumbers(File pdfFile) throws IOException
     {
-        if (pdfFile == null || !pdfFile.exists())
-        {
-            return;
-        }
-        byte[] numbered = addPageNumbers(Files.readAllBytes(pdfFile.toPath()));
+        byte[] pdfBytes = Files.readAllBytes(pdfFile.toPath());
+        byte[] numbered = addPageNumbers(pdfBytes);
         Files.write(pdfFile.toPath(), numbered);
     }
-
+    
     static byte[] addPageNumbers(byte[] pdfBytes) throws IOException
     {
         if (pdfBytes == null || pdfBytes.length == 0)
@@ -140,7 +137,7 @@ public class HtmlToPdfUtil
             for (int pageIndex = 1; pageIndex < totalPages; pageIndex++)
             {
                 PDPage page = document.getPage(pageIndex);
-                int pageNumber = pageIndex; // 第二页显示1，第三页显示2，以此类推
+                int pageNumber = pageIndex;
                 
                 try (PDPageContentStream contentStream = new PDPageContentStream(document, page, 
                         PDPageContentStream.AppendMode.PREPEND, true, true))
