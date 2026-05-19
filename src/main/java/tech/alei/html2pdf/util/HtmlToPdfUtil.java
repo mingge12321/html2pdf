@@ -105,12 +105,12 @@ public class HtmlToPdfUtil
             pdf.addParam(new Param("--header-spacing", "10"));
             // 添加页脚配置
             pdf.addParam(new Param("--footer-html", tempFooterFile.getAbsolutePath()));
-            // 设置页脚间距
-            pdf.addParam(new Param("--footer-spacing", "10"));
+            // 页脚与正文间距、页面底边距（避免页码被裁切）
+            pdf.addParam(new Param("--footer-spacing", "12"));
+            pdf.addParam(new Param("--margin-bottom", "25"));
 
             File out = pdf.saveAs(fileName);
             trimTrailingBlankPages(out);
-            addPageNumbers(out);
         } catch (IOException e)
         {
             e.printStackTrace();
